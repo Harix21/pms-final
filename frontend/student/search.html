@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View All Students</title>
+
+    <style>
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+         .header{
+            background: #ffffff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            height: 87px;
+            position:sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+            background-color: #34495e;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .filter-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-group {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 15px;
+        }
+
+        .filter-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+            color: #555;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: #007bff;
+            background: #f0f5ff;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .attendance-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        .attendance-btn {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .attendance-btn:hover {
+            border-color: #28a745;
+            background: #f0fff0;
+        }
+
+        .attendance-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            background: #cd5a65;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #c82333;
+        }
+
+        .stats {
+            text-align: right;
+            margin-bottom: 15px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #6aa3e0;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-placed {
+            background: #58a36a;
+        }
+
+        .badge-not-placed {
+            background: #ab515a;
+        }
+
+        .badge-male {
+            background: #58a0ab;
+        }
+
+        .badge-female {
+            background: #ae5b82;
+        }
+
+        .attendance-bar {
+            width: 100%;
+            height: 20px;
+            background: #eeeeee;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .attendance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5a9e6a, #d0b870, #c7646e);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .pagination button, .pagination span {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .pagination button:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        .pagination .active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .pagination .disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                max-width: none;
+            }
+
+            .sidebar.hidden {
+                left: -100%;
+            }
+
+            .sidebar:not(.hidden) {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 50px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+    <h2>Portal</h2>
+    <ul>
+        <li><a href="home.html" onclick="setActive(this)">Home</a></li>
+        <li><a href="addStudent.html" onclick="setActive(this)">Add Student</a></li>
+        <li><a href="search.html" class="active" onclick="setActive(this)"> Search Student</a></li>
+        <li><a href="schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="../jobs/browse-jobs.html" onclick="setActive(this)">Jobs</a></li>
+        <li><a href="../trainer/trainers.html" onclick="setActive(this)">Trainers</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="../jobs/home.html" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+      <div class="header">
+       
+    </div>
+<div class="container">
+    <h1>📊 View All Students</h1>
+
+    <!-- FILTERS -->
+    <div class="filters-section">
+        <div class="filter-title">
+            Filters
+            <button class="reset-btn" onclick="resetFilters()">Reset All</button>
+        </div>
+
+        <!-- Batch Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Batch:</span>
+            <div class="filter-options">
+                <button class="filter-btn" onclick="toggleFilter('batch', 'Super 76')">Super 76</button>
+                <button class="filter-btn" onclick="toggleFilter('batch', 'Strivers')">Strivers</button>
+                <button class="filter-btn" onclick="toggleFilter('batch', 'Aspirants')">Aspirants</button>
+            </div>
+        </div>
+
+        <!-- Placement Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Placement:</span>
+            <div class="filter-options">
+                <button class="filter-btn" onclick="toggleFilter('placement', 'Placed')">Placed</button>
+                <button class="filter-btn" onclick="toggleFilter('placement', 'Not Placed')">Not Placed</button>
+            </div>
+        </div>
+
+        <!-- Gender Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Gender:</span>
+            <div class="filter-options">
+                <button class="filter-btn" onclick="toggleFilter('gender', 'Male')">Male</button>
+                <button class="filter-btn" onclick="toggleFilter('gender', 'Female')">Female</button>
+            </div>
+        </div>
+
+        <!-- Year Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Year:</span>
+            <div class="filter-options">
+                <button class="filter-btn" onclick="toggleFilter('year', '1st')">1st</button>
+                <button class="filter-btn" onclick="toggleFilter('year', '2nd')">2nd</button>
+                <button class="filter-btn" onclick="toggleFilter('year', '3rd')">3rd</button>
+                <button class="filter-btn" onclick="toggleFilter('year', '4th')">4th</button>
+            </div>
+        </div>
+
+        <!-- Attendance Filter -->
+        <div class="filter-group">
+            <span class="filter-label">Attendance:</span>
+            <div class="attendance-filter">
+                <button class="attendance-btn" onclick="toggleFilter('attendance', '10-90')">10-90%</button>
+                <button class="attendance-btn" onclick="toggleFilter('attendance', '40-80')">40-80%</button>
+                <button class="attendance-btn" onclick="toggleFilter('attendance', '70-100')">70-100%</button>
+                <button class="attendance-btn" onclick="toggleFilter('attendance', '80-100')">80-100%</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats">
+        Showing <span id="count">0</span> students
+    </div>
+
+    <!-- TABLE -->
+    <table id="studentsTable">
+        <thead>
+            <tr>
+                <th>VHNO</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Year</th>
+                <th>Batch</th>
+                <th>Gender</th>
+                <th>Placement</th>
+                <th>Attendance</th>
+                <th>DOB</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <!-- PAGINATION CONTROLS -->
+    <div class="pagination" id="paginationControls"></div>
+
+    <div id="noResults" class="no-results" style="display: none;">
+        No students found matching the selected filters.
+    </div>
+</div>
+
+<script>
+
+const API = "http://localhost:8080/api/students";
+const RECORDS_PER_PAGE = 15;
+
+let allStudents = [];
+let filteredStudents = [];
+let currentPage = 1;
+let activeFilters = {
+    batch: [],
+    placement: [],
+    gender: [],
+    year: [],
+    attendance: []
+};
+
+// LOAD ALL STUDENTS ON PAGE LOAD
+document.addEventListener("DOMContentLoaded", function() {
+    loadAllStudents();
+});
+
+// SIDEBAR TOGGLE
+const SidebarState = {
+    STORAGE_KEY: 'sidebarState',
+    ACTIVE_KEY: 'activePage',
+    saveSidebarState(isHidden) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ hidden: isHidden }));
+    },
+    getSidebarState() {
+        const state = localStorage.getItem(this.STORAGE_KEY);
+        return state ? JSON.parse(state).hidden : false;
+    },
+    saveActivePage(href) {
+        localStorage.setItem(this.ACTIVE_KEY, href);
+    },
+    getActivePage() {
+        return localStorage.getItem(this.ACTIVE_KEY) || '';
+    }
+};
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isCurrentlyHidden = sidebar.classList.contains('hidden');
+    sidebar.classList.toggle('hidden');
+    hamburger.classList.toggle('active');
+    SidebarState.saveSidebarState(!isCurrentlyHidden);
+}
+
+function restoreSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isSidebarHidden = SidebarState.getSidebarState();
+    if (isSidebarHidden && window.innerWidth > 768) {
+        sidebar.classList.add('hidden');
+        hamburger.classList.add('active');
+    }
+}
+
+function setActive(element) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    element.classList.add('active');
+    const href = element.getAttribute('href');
+    if (href) SidebarState.saveActivePage(href);
+}
+
+function restoreActiveLink() {
+    const activePage = SidebarState.getActivePage();
+    if (activePage) {
+        const link = document.querySelector(`.sidebar a[href="${activePage}"]`);
+        if (link) link.classList.add('active');
+    }
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function() {
+        setActive(this);
+        if (window.innerWidth <= 768) setTimeout(() => toggleSidebar(), 100);
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('hidden')) toggleSidebar();
+    }
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    restoreSidebarState();
+    restoreActiveLink();
+}, { once: true });
+
+// LOAD STUDENTS
+function loadAllStudents() {
+    fetch(API)
+    .then(res => res.json())
+    .then(data => {
+        allStudents = data;
+        filteredStudents = data;
+        displayPage(1);
+        updatePagination();
+    })
+    .catch(err => console.error("Error loading students:", err));
+}
+
+// TOGGLE FILTER
+function toggleFilter(filterType, value) {
+    if (activeFilters[filterType].includes(value)) {
+        activeFilters[filterType] = activeFilters[filterType].filter(v => v !== value);
+    } else {
+        activeFilters[filterType].push(value);
+    }
+
+    // Update button styles
+    document.querySelectorAll(`.filter-btn, .attendance-btn`).forEach(btn => {
+        let btnValue = btn.textContent.trim();
+        if (btnValue === value || btnValue === value + '%') {
+            btn.classList.toggle('active');
+        }
+    });
+
+    filterAndDisplay();
+}
+
+// FILTER AND DISPLAY
+function filterAndDisplay() {
+    filteredStudents = allStudents.filter(student => {
+        // Batch filter
+        if (activeFilters.batch.length > 0 && !activeFilters.batch.includes(student.batchId)) {
+            return false;
+        }
+
+        // Placement filter
+        if (activeFilters.placement.length > 0 && !activeFilters.placement.includes(student.placementStatus)) {
+            return false;
+        }
+
+        // Gender filter
+        if (activeFilters.gender.length > 0 && !activeFilters.gender.includes(student.gender)) {
+            return false;
+        }
+
+        // Year filter
+        if (activeFilters.year.length > 0 && !activeFilters.year.includes(student.year)) {
+            return false;
+        }
+
+        // Attendance filter
+        if (activeFilters.attendance.length > 0) {
+            let attendance = parseInt(student.attendance);
+            let matchesAttendance = false;
+
+            for (let range of activeFilters.attendance) {
+                if (range === '10-90' && attendance >= 10 && attendance <= 90) matchesAttendance = true;
+                if (range === '40-80' && attendance >= 40 && attendance <= 80) matchesAttendance = true;
+                if (range === '70-100' && attendance >= 70 && attendance <= 100) matchesAttendance = true;
+                if (range === '80-100' && attendance >= 80 && attendance <= 100) matchesAttendance = true;
+            }
+
+            if (!matchesAttendance) return false;
+        }
+
+        return true;
+    });
+
+    currentPage = 1; // Reset to page 1 when filtering
+    displayPage(1);
+    updatePagination();
+}
+
+// DISPLAY CURRENT PAGE
+function displayPage(pageNum) {
+    const startIdx = (pageNum - 1) * RECORDS_PER_PAGE;
+    const endIdx = startIdx + RECORDS_PER_PAGE;
+    const pageData = filteredStudents.slice(startIdx, endIdx);
+
+    const tableBody = document.getElementById('tableBody');
+    const noResults = document.getElementById('noResults');
+    const countSpan = document.getElementById('count');
+
+    tableBody.innerHTML = '';
+    countSpan.textContent = filteredStudents.length;
+
+    if (filteredStudents.length === 0) {
+        noResults.style.display = 'block';
+        return;
+    }
+
+    noResults.style.display = 'none';
+
+    pageData.forEach(s => {
+        const placementBadgeClass = s.placementStatus === 'Placed' ? 'badge-placed' : 'badge-not-placed';
+        const genderBadgeClass = s.gender === 'Male' ? 'badge-male' : 'badge-female';
+        
+        const Row = `
+            <tr>
+                <td><strong>${s.vhno}</strong></td>
+                <td>${s.name}</td>
+                <td>${s.email}</td>
+                <td>${s.phno}</td>
+                <td>${s.year}</td>
+                <td>${s.batchId}</td>
+                <td><span class="badge ${genderBadgeClass}">${s.gender}</span></td>
+                <td><span class="badge ${placementBadgeClass}">${s.placementStatus}</span></td>
+                <td>
+                    <div class="attendance-bar">
+                        <div class="attendance-fill" style="width: ${s.attendance}%">
+                            ${s.attendance}%
+                        </div>
+                    </div>
+                </td>
+                <td>${s.dob}</td>
+            </tr>
+        `;
+        tableBody.innerHTML += Row;
+    });
+}
+
+// UPDATE PAGINATION CONTROLS
+function updatePagination() {
+    const totalPages = Math.ceil(filteredStudents.length / RECORDS_PER_PAGE);
+    const paginationDiv = document.getElementById("paginationControls");
+    paginationDiv.innerHTML = "";
+
+    if (totalPages <= 1) {
+        paginationDiv.innerHTML = ""; // Hide pagination if only 1 page
+        return;
+    }
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationDiv.innerHTML += `<button onclick="goToPage(${currentPage - 1})">← Previous</button>`;
+    } else {
+        paginationDiv.innerHTML += `<button disabled class="disabled">← Previous</button>`;
+    }
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            paginationDiv.innerHTML += `<span class="active">${i}</span>`;
+        } else {
+            paginationDiv.innerHTML += `<button onclick="goToPage(${i})">${i}</button>`;
+        }
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationDiv.innerHTML += `<button onclick="goToPage(${currentPage + 1})">Next →</button>`;
+    } else {
+        paginationDiv.innerHTML += `<button disabled class="disabled">Next →</button>`;
+    }
+}
+
+// GO TO PAGE
+function goToPage(pageNum) {
+    currentPage = pageNum;
+    displayPage(pageNum);
+    updatePagination();
+    window.scrollTo(0, 0); // Scroll to top
+}
+
+// RESET FILTERS
+function resetFilters() {
+    activeFilters = {
+        batch: [],
+        placement: [],
+        gender: [],
+        year: [],
+        attendance: []
+    };
+
+    document.querySelectorAll('.filter-btn, .attendance-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    filteredStudents = allStudents;
+    currentPage = 1;
+    displayPage(1);
+    updatePagination();
+}
+
+</script>
+
+</div>
+</div>
+
+</body>
+</html>

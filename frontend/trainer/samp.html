@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trainers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="content">
+    <h2>Add Trainer</h2>
+
+    <form id="trainerForm">
+        <input placeholder="Name" id="name">
+        <input placeholder="Email" id="email">
+        <input placeholder="Phone" id="phno">
+        <input placeholder="Expertise" id="exp">
+
+        <button>Add Trainer</button>
+    </form>
+
+    <h2>All Trainers</h2>
+    <div id="list"></div>
+</div>
+
+<script>
+const base = "http://localhost:8080";
+document.getElementById("trainerForm").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const data = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phno: document.getElementById("phno").value,
+        expertise: document.getElementById("exp").value
+    };
+
+    await fetch(base + "/trainers", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Trainer Added");
+    load();
+};
+
+async function load() {
+    const res = await fetch(base + "/trainers");
+    const data = await res.json();
+
+    let html="";
+    data.forEach(t=>{
+        html += `<div class="card">${t.name} - ${t.expertise}</div>`;
+    });
+
+    list.innerHTML = html;
+}
+
+load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Trainer - Trainer Management</title>
+    <link rel="stylesheet" href="../components/sidebar.css">
+    <link rel="stylesheet" href="../components/header.css">
+    <style>
+           * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+         .headers{
+            background: #ffffff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            height: 87px;
+            position:sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+            background-color: #34495e;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+
+         .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+        }
+
+       .container {
+            max-width: 1200px;
+            margin: 20px ;
+            background: #f4f6f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+
+        .container.sidebar-hidden {
+            margin-left: 0;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-reset {
+            background: #ddd;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-reset:hover {
+            background: #ccc;
+        }
+
+        .btn-back {
+            background: #999;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #777;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin-left: 0;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+   
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+   
+    <h2> Portal</h2>
+    
+    <ul>
+        <li><a href="../student/home.html" onclick="setActive(this)">Home</a></li>
+        <li><a href="../student/addStudent.html" onclick="setActive(this)">Add Student</a></li>
+        <li><a href="../student/search.html" onclick="setActive(this)">Search Student</a></li>
+        <li><a href="../student/schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="../student/training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="../../jobs/browse-jobs.html" onclick="setActive(this)">Jobs</a></li>
+        <li><a href="./trainers.html" class="active" >Trainers</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="jobs/home.htm" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+<div class="main-content">
+      <div class="headers">
+       
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="main-container">
+        <div class="form-container">
+            <h1>Add New Trainer</h1>
+
+            <div class="success-message" id="successMessage">Trainer added successfully!</div>
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="trainerForm">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter trainer name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter email address">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phno">Phone *</label>
+                        <input type="tel" id="phno" name="phno" required placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="expertise">Expertise *</label>
+                        <input type="text" id="expertise" name="expertise" required placeholder="e.g., Java, Python, etc.">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-submit">Save Trainer</button>
+                    <button type="reset" class="btn-reset">Clear</button>
+                </div>
+            </form>
+
+            <button class="btn-back" onclick="goBack()" style="width: 100%; margin-top: 10px;">Back to Trainers</button>
+        </div>
+    </div></div>
+
+    <script src="../components/component-loader.js"></script>
+   <script>
+const base = "http://localhost:8080";
+document.getElementById("trainerForm").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const data = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        phno: document.getElementById("phno").value,
+        expertise: document.getElementById("expertise").value
+    };
+
+    await fetch(base + "/trainers", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+    });
+
+    alert("Trainer Added");
+    load();
+};
+
+// ✅ LOAD TRAINER (EDIT MODE)
+async function loadTrainer(id) {
+    try {
+        const res = await fetch(`${BASE_URL}/${id}`);
+
+        if (!res.ok) throw new Error("Trainer not found");
+
+        const trainer = await res.json();
+
+        document.getElementById("name").value = trainer.name || "";
+        document.getElementById("email").value = trainer.email || "";
+        document.getElementById("phno").value = trainer.phno || "";
+        document.getElementById("expertise").value = trainer.expertise || "";
+
+    } catch (err) {
+        console.error(err);
+        showError("Error loading trainer details");
+    }
+}
+
+
+// ✅ SUBMIT FORM
+async function handleFormSubmit(e) {
+    e.preventDefault();
+
+    const trainer = {
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phno: document.getElementById("phno").value.trim(),
+        expertise: document.getElementById("expertise").value.trim()
+    };
+
+    console.log("Sending Data:", trainer); // 🔥 DEBUG
+
+    // 🔴 Basic validation
+    if (!trainer.name || !trainer.email || !trainer.phno || !trainer.expertise) {
+        showError("All fields are required");
+        return;
+    }
+
+    try {
+        const url = isEditMode ? `${BASE_URL}/${trainerId}` : BASE_URL;
+        const method = isEditMode ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(trainer)
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+            throw new Error(text || "Error saving trainer");
+        }
+
+        showSuccess();
+
+        // ✅ Reset form if adding new
+        if (!isEditMode) {
+            document.getElementById("trainerForm").reset();
+        }
+
+        // ✅ Redirect
+        setTimeout(() => {
+            window.location.href = "viewTrainers.html";
+        }, 1200);
+
+    } catch (err) {
+        console.error(err);
+        showError(err.message);
+    }
+}
+
+
+// ✅ SUCCESS MESSAGE
+function showSuccess() {
+    const msg = document.getElementById("successMessage");
+    msg.textContent = isEditMode
+        ? "Trainer updated successfully!"
+        : "Trainer added successfully!";
+
+    msg.style.display = "block";
+    document.getElementById("errorMessage").style.display = "none";
+}
+
+
+// ❌ ERROR MESSAGE
+function showError(message) {
+    const msg = document.getElementById("errorMessage");
+    msg.textContent = message;
+
+    msg.style.display = "block";
+    document.getElementById("successMessage").style.display = "none";
+}
+
+
+// 🔙 BACK BUTTON
+function goBack() {
+    window.location.href = "viewTrainers.html";
+}
+</script>
+</body>
+</html>

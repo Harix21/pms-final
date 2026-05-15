@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #5569d8;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .session-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-item-label {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .info-item-value {
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .stat-card-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        .stat-card-danger {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+        }
+
+        .stat-card-info {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+
+        /* Report Section */
+        .report-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #f5f7fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-present {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .badge-absent {
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        .percentage {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .percentage-high {
+            color: #4caf50;
+        }
+
+        .percentage-medium {
+            color: #ff9800;
+        }
+
+        .percentage-low {
+            color: #f44336;
+        }
+
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+            background: #ffebee;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: auto 0 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Export Button */
+        .export-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .export-btn:hover {
+            background: #f5f7fa;
+        }
+
+        @media (max-width: 768px) {
+            .session-info {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-wrap: wrap;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                max-width: none;
+            }
+
+            .sidebar.hidden {
+                left: -100%;
+            }
+
+            .sidebar:not(.hidden) {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 50px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+    <h2>📚 Portal</h2>
+    <ul>
+        <li><a href="home.html" onclick="setActive(this)">🏠 Student Home</a></li>
+        <li><a href="addStudent.html" onclick="setActive(this)">👥 Add Student</a></li>
+        <li><a href="search.html" onclick="setActive(this)">🔍 Search Student</a></li>
+        <li><a href="schedule.html" onclick="setActive(this)">📅 Schedule</a></li>
+        <li><a href="training-schedule.html" onclick="setActive(this)">📖 Training Schedule</a></li>
+        <li><a href="../jobs/browse-jobs.html" onclick="setActive(this)">Jobs</a></li>
+        <li><a href="../trainer/trainers.html" onclick="setActive(this)">Trainers</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="../jobs/home.html" onclick="setActive(this)">💼 Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <h1 id="sessionTitle">Session Attendance Report</h1>
+        </div>
+
+        <div class="session-info">
+            <div class="info-item">
+                <span class="info-item-label">📅 Date</span>
+                <span class="info-item-value" id="infoDate">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-item-label">⏰ Time</span>
+                <span class="info-item-value" id="infoTime">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-item-label">👥 Batch</span>
+                <span class="info-item-value" id="infoBatch">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-item-label">👨‍🏫 Trainer</span>
+                <span class="info-item-value" id="infoTrainer">-</span>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card stat-card-info">
+                <div class="stat-number" id="statTotal">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card stat-card-success">
+                <div class="stat-number" id="statPresent">0</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-card stat-card-danger">
+                <div class="stat-number" id="statAbsent">0</div>
+                <div class="stat-label">Absent</div>
+            </div>
+            <div class="stat-card stat-card-info">
+                <div class="stat-number" id="statAttendanceRate">0%</div>
+                <div class="stat-label">Attendance Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Area -->
+    <div id="messageDiv"></div>
+
+    <!-- Attendance Details Table -->
+    <div class="report-section">
+        <div class="section-header">
+            <h2>📋 Attendance Details</h2>
+            <button class="export-btn" onclick="exportToCSV()">📥 Export CSV</button>
+        </div>
+
+        <div id="tableContent">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>VHNO</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th>Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    <!-- Will be populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="no-data" id="noData" style="display:none;">
+            <div class="no-data-icon">📭</div>
+            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">No Attendance Data</div>
+            <p>Attendance data for this session is not available yet.</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading attendance report...</p>
+        </div>
+    </div>
+
+    <!-- Absent Students Summary -->
+    <div class="report-section">
+        <div class="section-header">
+            <h2>❌ Absent Students</h2>
+        </div>
+
+        <div id="absentContent">
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>VHNO</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody id="absentTableBody">
+                    <!-- Will be populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="no-data" id="noAbsent" style="display:none;">
+            <div class="no-data-icon">✓</div>
+            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Perfect Attendance!</div>
+            <p>All students were present in this session.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const SESSION_API = "http://localhost:8080/sessions";
+const STUDENT_API = "http://localhost:8080/api/students";
+const ATTENDANCE_API = "http://localhost:8080/attendance";
+
+let sessionId = new URLSearchParams(window.location.search).get('id');
+let sessionData = null;
+let students = [];
+let attendanceRecords = [];
+
+function showMessage(message, type = 'info') {
+    const msgDiv = document.getElementById('messageDiv');
+    
+    if (type === 'error') {
+        msgDiv.innerHTML = `<div class="message error-message">${message}</div>`;
+    }
+}
+
+function getPercentageClass(percentage) {
+    if (percentage >= 75) return 'percentage-high';
+    if (percentage >= 50) return 'percentage-medium';
+    return 'percentage-low';
+}
+
+async function loadSessionData() {
+    try {
+        const res = await fetch(`${SESSION_API}/${sessionId}`);
+
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+
+        sessionData = await res.json();
+        console.log('Session Data Loaded:', sessionData);
+
+        if (!sessionData || !sessionData.batchId) {
+            throw new Error("Batch ID missing in session");
+        }
+
+        // Populate all session info fields
+        document.getElementById('sessionTitle').textContent = sessionData.sessionName || 'Session Attendance Report';
+        document.getElementById('infoDate').textContent = sessionData.date || '-';
+        document.getElementById('infoTime').textContent = `${sessionData.startTime || '-'} - ${sessionData.endTime || '-'}`;
+        document.getElementById('infoBatch').textContent = sessionData.batchId || '-';
+        document.getElementById('infoTrainer').textContent = sessionData.trainer ? sessionData.trainer.name : 'Not Assigned';
+
+        return true;
+
+    } catch (err) {
+        console.error('Session Load Error:', err);
+        showMessage('Error loading session: ' + err.message, 'error');
+        return false;
+    }
+}
+
+async function loadBatchStudents() {
+    try {
+        if (!sessionData || !sessionData.batchId) {
+            throw new Error("Session data not available");
+        }
+
+        console.log('Loading students for batch:', sessionData.batchId);
+        const res = await fetch(STUDENT_API);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`Failed to load students: ${res.status} - ${text}`);
+        }
+
+        const allStudents = await res.json();
+        console.log('All students fetched:', allStudents);
+        
+        if (!Array.isArray(allStudents)) {
+            throw new Error('Invalid students data format');
+        }
+
+        students = allStudents.filter(s => s.batchId === sessionData.batchId);
+        console.log('Filtered students for batch:', students);
+
+    } catch (err) {
+        console.error('Student Load Error:', err);
+        showMessage('Error loading students: ' + err.message, 'error');
+    }
+}
+async function loadAttendanceRecords() {
+    try {
+        if (!sessionId) {
+            throw new Error('No session selected');
+        }
+
+        const res = await fetch(`${ATTENDANCE_API}?sessionId=${sessionId}`);
+        if (!res.ok) {
+            console.info('No attendance records found yet');
+            attendanceRecords = [];
+        } else {
+            const data = await res.json();
+            attendanceRecords = Array.isArray(data) ? data : [];
+        }
+        
+        document.getElementById('loading').style.display = 'none';
+        renderReports();
+
+    } catch (err) {
+        console.error('Error loading attendance:', err);
+        document.getElementById('loading').style.display = 'none';
+        renderReports();
+    }
+}
+
+function renderReports() {
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+        document.getElementById('tableContent').innerHTML = '';
+        document.getElementById('noData').style.display = 'block';
+        document.getElementById('absentContent').innerHTML = '';
+        document.getElementById('noAbsent').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('tableContent').style.display = 'block';
+    document.getElementById('noData').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
+
+    // Create map for quick lookup
+    const attendanceMap = {};
+    attendanceRecords.forEach(record => {
+        attendanceMap[record.vhno] = record.present;
+    });
+
+    // Calculate statistics
+    const presentCount = attendanceRecords.filter(r => r.present).length;
+    const absentCount = attendanceRecords.filter(r => !r.present).length;
+    const attendanceRate = students.length > 0 
+        ? Math.round((presentCount / students.length) * 100) 
+        : 0;
+
+    document.getElementById('statTotal').textContent = students.length;
+    document.getElementById('statPresent').textContent = presentCount;
+    document.getElementById('statAbsent').textContent = absentCount;
+    document.getElementById('statAttendanceRate').textContent = attendanceRate + '%';
+
+    // Render attendance details
+    let html = '';
+    students.forEach((student, index) => {
+        const isPresent = attendanceMap[student.vhno];
+        const statusBadge = isPresent 
+            ? '<span class="badge badge-present">✓ Present</span>'
+            : '<span class="badge badge-absent">✗ Absent</span>';
+        
+        // Calculate individual attendance percentage (for all sessions)
+        const totalSessions = students.length; // Simplified: use batch size
+        const attendancePercentage = isPresent ? 100 : 0; // This is just for this session
+
+        html += `
+        <tr>
+            <td>${index + 1}</td>
+            <td><strong>${student.vhno}</strong></td>
+            <td>${student.name}</td>
+            <td>${student.email}</td>
+            <td>${student.year}</td>
+            <td>${statusBadge}</td>
+            <td><span class="percentage ${getPercentageClass(attendancePercentage)}">${attendancePercentage}%</span></td>
+        </tr>`;
+    });
+
+    document.getElementById('attendanceTableBody').innerHTML = html;
+
+    // Render absent students
+    const absentStudents = students.filter(s => attendanceMap[s.vhno] === false);
+    
+    if (absentStudents.length === 0) {
+        document.getElementById('absentContent').innerHTML = '';
+        document.getElementById('noAbsent').style.display = 'block';
+    } else {
+        document.getElementById('noAbsent').style.display = 'none';
+        let absentHtml = '';
+        absentStudents.forEach((student, index) => {
+            absentHtml += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${student.vhno}</strong></td>
+                <td>${student.name}</td>
+                <td>${student.email}</td>
+                <td>${student.phno || 'N/A'}</td>
+                <td>${student.year}</td>
+            </tr>`;
+        });
+
+        document.getElementById('absentTableBody').innerHTML = absentHtml;
+    }
+}
+
+function exportToCSV() {
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+        alert('No attendance data to export');
+        return;
+    }
+
+    const headers = ['S.No', 'VHNO', 'Name', 'Email', 'Year', 'Status'];
+    let csv = headers.join(',') + '\n';
+
+    const attendanceMap = {};
+    attendanceRecords.forEach(record => {
+        attendanceMap[record.vhno] = record.present;
+    });
+
+    students.forEach((student, index) => {
+        const isPresent = attendanceMap[student.vhno] ? 'Present' : 'Absent';
+        csv += `${index + 1},"${student.vhno}","${student.name}","${student.email}","${student.year}","${isPresent}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${sessionData.sessionName}_${sessionData.date}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function goBack() {
+    window.location.href = 'schedule.html';
+}
+
+// PERSISTENT SIDEBAR STATE MANAGEMENT
+const SidebarState = {
+    STORAGE_KEY: 'sidebarState',
+    ACTIVE_KEY: 'activePage',
+    saveSidebarState(isHidden) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ hidden: isHidden }));
+    },
+    getSidebarState() {
+        const state = localStorage.getItem(this.STORAGE_KEY);
+        return state ? JSON.parse(state).hidden : false;
+    },
+    saveActivePage(href) {
+        localStorage.setItem(this.ACTIVE_KEY, href);
+    },
+    getActivePage() {
+        return localStorage.getItem(this.ACTIVE_KEY) || '';
+    }
+};
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isCurrentlyHidden = sidebar.classList.contains('hidden');
+    sidebar.classList.toggle('hidden');
+    hamburger.classList.toggle('active');
+    SidebarState.saveSidebarState(!isCurrentlyHidden);
+}
+
+function restoreSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isSidebarHidden = SidebarState.getSidebarState();
+    if (isSidebarHidden && window.innerWidth > 768) {
+        sidebar.classList.add('hidden');
+        hamburger.classList.add('active');
+    }
+}
+
+function setActive(element) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    element.classList.add('active');
+    const href = element.getAttribute('href');
+    if (href) SidebarState.saveActivePage(href);
+}
+
+function restoreActiveLink() {
+    const activePage = SidebarState.getActivePage();
+    if (activePage) {
+        const link = document.querySelector(`.sidebar a[href="${activePage}"]`);
+        if (link) link.classList.add('active');
+    }
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function() {
+        setActive(this);
+        if (window.innerWidth <= 768) setTimeout(() => toggleSidebar(), 100);
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('hidden')) toggleSidebar();
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+    // Restore sidebar state first
+    restoreSidebarState();
+    restoreActiveLink();
+    
+    if (!sessionId) {
+        showMessage('Invalid session ID', 'error');
+        document.getElementById('loading').style.display = 'none';
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    
+    // Load session data first
+    const sessionLoaded = await loadSessionData();
+    
+    if (!sessionLoaded || !sessionData) {
+        document.getElementById('loading').style.display = 'none';
+        showMessage('Failed to load session data. Please try again.', 'error');
+        return;
+    }
+    
+    // Only load students if session data is available
+    await loadBatchStudents();
+    await loadAttendanceRecords();
+});
+</script>
+
+<script src="../components/loader.js"></script>
+</body>
+</html>

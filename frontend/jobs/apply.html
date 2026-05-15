@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply for Job</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+         .header{
+            background: #ffffff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            height: 87px;
+            position:sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar #h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+            background-color: #34495e;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+           
+            
+            
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+          
+        }   
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #f4f6f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                margin: 40px ;
+            
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: Arial;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-body {
+            margin: 15px 0;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-buttons button {
+            display: inline-block;
+            width: auto;
+            padding: 10px 20px;
+            margin-left: 10px;
+            margin-top: 0;
+        }
+
+        .btn-close {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background: #5a6268;
+        }
+
+        .error-message {
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            color: #155724;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .info-message {
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            background: #d1ecf1;
+            border-radius: 5px;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                max-width: none;
+            }
+
+            .sidebar.hidden {
+                left: -100%;
+            }
+
+            .sidebar:not(.hidden) {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+            .modal-content {
+                width: 90%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+    <div id="h2">Portal</div>
+    <ul>
+      <li><a href="../student/home.html" onclick="setActive(this)">Home</a></li>
+        <li><a href="../student/addStudent.html" onclick="setActive(this)">Add Student</a></li>
+        <li><a href="../student/search.html" onclick="setActive(this)">Search Student</a></li>
+        <li><a href="../student/schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="../student/training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="browse-jobs.html" class="active">Jobs</a></li>
+        <li><a href="../student/attendance-report.html" onclick="setActive(this)">Report</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="home.html" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+    <h2>Portal</h2>
+    <ul>
+        <li><a href="../student/home.html" onclick="setActive(this)">Home</a></li>
+        <li><a href="../student/addStudent.html" onclick="setActive(this)">Add Student</a></li>
+        <li><a href="../student/search.html" onclick="setActive(this)">Search Student</a></li>
+        <li><a href="../student/schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="../student/training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="browse-jobs.html" class="active">Jobs</a></li>
+        <li><a href="../student/attendance-report.html" onclick="setActive(this)">Report</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="home.html" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+   <div class="header">
+       
+    </div>
+    <div class="container">
+        <center>
+<div class="form-container">
+    <button class="back-btn" onclick="goBack()">← Back to Job Details</button>
+    
+    <h2>📝 Apply for Job</h2>
+
+    <form id="applyForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="vhno">VHNO <span class="required">*</span></label>
+            <input type="text" id="vhno" name="vhno" placeholder="Enter your VHNO" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phno">Phone <span class="required">*</span></label>
+            <input type="tel" id="phno" name="phno" placeholder="Enter your phone number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="year">Year <span class="required">*</span></label>
+            <input type="text" id="year" name="year" placeholder="e.g., 2nd Year" required>
+        </div>
+
+        <div class="form-group">
+            <label for="resume">Resume (PDF) <span class="required">*</span></label>
+            <input type="file" id="resume" name="resume" accept="application/pdf" required>
+        </div>
+
+        <button type="submit">✉️ Submit Application</button>
+    </form>
+</div>
+
+<!-- Error/Success Modal -->
+<div id="responseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Application Status</div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-buttons">
+            <button class="btn-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div></center></div></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const jobId = params.get("jobId");
+
+function goBack() {
+    window.history.back();
+}
+
+function showModal(message, type = 'info') {
+    const modal = document.getElementById('responseModal');
+    const msgDiv = document.getElementById('modalMessage');
+    
+    if (type === 'error') {
+        msgDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    } else if (type === 'success') {
+        msgDiv.innerHTML = `<div class="success-message">${message}</div>`;
+    } else {
+        msgDiv.innerHTML = `<div class="info-message">${message}</div>`;
+    }
+    
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    const modal = document.getElementById('responseModal');
+    modal.classList.remove('show');
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('responseModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+document.getElementById("applyForm").onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (!jobId) {
+        showModal('Job ID is missing. Please select a job first.', 'error');
+        return;
+    }
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Submitting...';
+
+    try {
+        const formData = new FormData(e.target);
+        formData.append("jobId", jobId);
+
+        const res = await fetch("http://localhost:8080/apply", {
+            method: "POST",
+            body: formData
+        });
+
+        const responseText = await res.text();
+        
+        if (!res.ok) {
+            let errorMessage = 'Application submission failed';
+            
+            // Try to parse as JSON first
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.message || errorData.error || errorData.msg || 'Application submission failed';
+            } catch {
+                // If not JSON, try to extract error message from HTML or plain text
+                
+                // Check if it's HTML (contains HTML tags)
+                if (responseText.includes('<') && responseText.includes('>')) {
+                    // Try to extract text from common error patterns
+                    let extracted = responseText;
+                    
+                    // Extract from h1, h2, title tags
+                    let h1Match = responseText.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+                    let h2Match = responseText.match(/<h2[^>]*>([^<]+)<\/h2>/i);
+                    let titleMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
+                    let prMatch = responseText.match(/<pre[^>]*>([^<]+)<\/pre>/i);
+                    let pMatch = responseText.match(/<p[^>]*>([^<]+)<\/p>/i);
+                    
+                    if (h1Match) extracted = h1Match[1];
+                    else if (h2Match) extracted = h2Match[1];
+                    else if (prMatch) extracted = prMatch[1];
+                    else if (pMatch) extracted = pMatch[1];
+                    else if (titleMatch) extracted = titleMatch[1];
+                    else {
+                        // Remove all HTML tags
+                        extracted = responseText
+                            .replace(/<[^>]*>/g, ' ')
+                            .replace(/\s+/g, ' ')
+                            .trim()
+                            .substring(0, 200);
+                    }
+                    
+                    errorMessage = extracted || 'Application submission failed';
+                } else {
+                    // Plain text response
+                    errorMessage = responseText.trim() || 'Application submission failed';
+                }
+            }
+            
+            // Clean up common error messages
+            errorMessage = errorMessage
+                .replace(/Internal Server Error/gi, 'Server Error')
+                .trim();
+            
+            showModal(errorMessage, 'error');
+        } else {
+            // Success response
+            try {
+                const successData = JSON.parse(responseText);
+                const successMessage = successData.message || successData.msg || 'Application submitted successfully! 🎉';
+                showModal(successMessage, 'success');
+            } catch {
+                showModal('Application submitted successfully! 🎉', 'success');
+            }
+            
+            // Clear form
+            document.getElementById("applyForm").reset();
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = "job-details.html?id=" + jobId;
+            }, 2000);
+        }
+    } catch (err) {
+        showModal('Network error: ' + err.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✉️ Submit Application';
+    }
+};
+</script>
+
+<script>
+// PERSISTENT SIDEBAR STATE MANAGEMENT
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isCurrentlyHidden = sidebar.classList.contains('hidden');
+    sidebar.classList.toggle('hidden');
+    hamburger.classList.toggle('active');
+    localStorage.setItem('sidebarState', JSON.stringify({ hidden: !isCurrentlyHidden }));
+}
+
+function restoreSidebarState() {
+    const state = localStorage.getItem('sidebarState');
+    if (state) {
+        const { hidden } = JSON.parse(state);
+        if (hidden && window.innerWidth > 768) {
+            document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('hamburger').classList.add('active');
+        }
+    }
+}
+
+function setActive(element) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    element.classList.add('active');
+    const href = element.getAttribute('href');
+    if (href) localStorage.setItem('activePage', href);
+}
+
+function restoreActiveLink() {
+    const activePage = localStorage.getItem('activePage');
+    if (activePage) {
+        const link = document.querySelector(`.sidebar a[href="${activePage}"]`);
+        if (link) link.classList.add('active');
+    }
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function() {
+        setActive(this);
+        if (window.innerWidth <= 768) setTimeout(() => toggleSidebar(), 100);
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('hidden')) toggleSidebar();
+    }
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    restoreSidebarState();
+    restoreActiveLink();
+});
+</script>
+
+</div>
+</div>
+
+</body>
+</html>

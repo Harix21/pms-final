@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Job</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+         .headers{
+            background: #ffffff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            height: 87px;
+            position:sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+            background-color: #34495e;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+
+        /* MAIN CONTENT */
+        .main-content {
+           flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+           
+        }
+          .container {
+            max-width: 1200px;
+            margin: 20px;
+             background-color: #f4f6f9;
+             padding: 20px;
+             border-radius: 1%;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #333;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #444;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: Arial;
+            font-size: 14px;
+            transition: 0.3s;
+            background: #f9f9f9;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #333;
+            background: white;
+            box-shadow: 0 0 8px rgba(51, 51, 51, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: Arial;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .btn-submit {
+            background: #333;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-submit:hover {
+            background: #555;
+        }
+
+        .btn-submit:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-cancel {
+            background: #999;
+            color: white;
+            padding: 12px 32px;
+        }
+
+        .btn-cancel:hover {
+            background: #777;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .rounds-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid #333;
+            display: none;
+        }
+
+        .rounds-container.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rounds-container h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .round-input-group {
+            margin-bottom: 12px;
+        }
+
+        .round-input-group label {
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .round-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .round-input-group input:focus {
+            border-color: #333;
+            box-shadow: 0 0 6px rgba(51, 51, 51, 0.15);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .modal-body {
+            margin: 15px 0;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-buttons button {
+            display: inline-block;
+            width: auto;
+            padding: 10px 20px;
+            margin-left: 10px;
+        }
+
+        .btn-close {
+            background: #999;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background: #777;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            color: #1b5e20;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .warning-message {
+            color: #e65100;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            background: #fff3e0;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                max-width: none;
+            }
+
+            .sidebar.hidden {
+                left: -100%;
+            }
+
+            .sidebar:not(.hidden) {
+               left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 50px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                width: 90%;
+                max-width: 100%;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .btn-submit {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+    <h2>Portal</h2>
+    <ul>
+        <li><a href="../student/home.html" onclick="setActive(this)">Student Home</a></li>
+        <li><a href="../student/addStudent.html" onclick="setActive(this)">Add Student</a></li>
+        <li><a href="../student/search.html" onclick="setActive(this)">Search Student</a></li>
+        <li><a href="../student/schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="../student/training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="browse-jobs.html" class="active">Jobs</a></li>
+        <li><a href="../trainer/trainers.html" onclick="setActive(this)">Trainers</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="home.html" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+       <div class="headers">
+       
+    </div><center><div class="container">
+<div class="form-container">
+    <div class="header">
+        <h1>➕ Add New Job</h1>
+        <button class="close-btn" onclick="goBack()">← Back</button>
+    </div>
+
+    <form id="addJobForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="company">Company Name <span class="required">*</span></label>
+                <input type="text" id="company" name="company" placeholder="e.g., TCS, Infosys" required>
+                <div class="info-text">Enter the company name</div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Job Role <span class="required">*</span></label>
+                <input type="text" id="role" name="role" placeholder="e.g., Software Engineer" required>
+                <div class="info-text">Enter the job position</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="salary">Salary <span class="required">*</span></label>
+                <input type="text" id="salary" name="salary" placeholder="e.g., 5-7 LPA" required>
+                <div class="info-text">Enter salary range or amount</div>
+            </div>
+
+            <div class="form-group">
+                <label for="rounds">Interview Rounds <span class="required">*</span></label>
+                <input type="text" id="rounds" name="rounds" placeholder="e.g., 3" required>
+                <div class="info-text">Number of rounds (enter as text)</div>
+            </div>
+        </div>
+
+        <!-- Rounds Details Container -->
+        <div id="roundsContainer" class="rounds-container">
+            <h3>📋 Enter Interview Rounds Details</h3>
+            <div id="roundsInputs"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Job Description <span class="required">*</span></label>
+            <textarea id="description" name="description" placeholder="Enter complete job description, requirements, skills needed, etc." required></textarea>
+            <div class="info-text">Provide detailed job description</div>
+        </div>
+
+        <div class="form-group">
+            <label for="postedDate">Posted Date <span class="required">*</span></label>
+            <input type="date" id="postedDate" name="postedDate" required>
+            <div class="info-text">Select the job posting date</div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn-submit">✓ Add Job</button>
+            <button type="button" class="btn-cancel" onclick="goBack()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<!-- Error/Success Modal -->
+<div id="responseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Response</div>
+        <div class="modal-body" id="modalMessage"></div>
+        <div class="modal-buttons">
+            <button class="btn-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    </div>
+    </center>
+</div>
+
+<script>
+const JOB_API = "http://localhost:8080/jobs";
+
+function goBack() {
+    window.history.back();
+}
+
+function showModal(message, type = 'info') {
+    const modal = document.getElementById('responseModal');
+    const msgDiv = document.getElementById('modalMessage');
+    
+    if (type === 'error') {
+        msgDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    } else if (type === 'success') {
+        msgDiv.innerHTML = `<div class="success-message">${message}</div>`;
+    } else {
+        msgDiv.innerHTML = `<div class="warning-message">${message}</div>`;
+    }
+    
+    modal.classList.add('show');
+}
+
+function closeModal() {
+    const modal = document.getElementById('responseModal');
+    modal.classList.remove('show');
+    
+    // Redirect on success
+    if (modal.dataset.success === 'true') {
+        window.location.href = "jobs.html";
+    }
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('responseModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Handle rounds input change
+document.getElementById("rounds").addEventListener("change", function() {
+    const roundsValue = this.value.trim();
+    const numRounds = parseInt(roundsValue);
+    const roundsContainer = document.getElementById("roundsContainer");
+    const roundsInputs = document.getElementById("roundsInputs");
+    
+    // Validate input
+    if (!roundsValue || isNaN(numRounds)) {
+        roundsContainer.classList.remove("show");
+        roundsInputs.innerHTML = "";
+        return;
+    }
+    
+    if (numRounds > 0) {
+        // Clear previous inputs
+        roundsInputs.innerHTML = "";
+        
+        // Create input fields for each round
+        for (let i = 1; i <= numRounds; i++) {
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "round-input-group";
+            inputGroup.innerHTML = `
+                <label for="round${i}">Round ${i} Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="round${i}" 
+                    class="round-input" 
+                    placeholder="e.g., Technical Round, HR Round" 
+                    required
+                >
+            `;
+            roundsInputs.appendChild(inputGroup);
+        }
+        
+        // Show the container
+        roundsContainer.classList.add("show");
+    } else {
+        // Hide the container if rounds is 0 or invalid
+        roundsContainer.classList.remove("show");
+        roundsInputs.innerHTML = "";
+    }
+});
+
+// Also handle input event for when rounds input is being typed
+document.getElementById("rounds").addEventListener("input", function() {
+    const roundsValue = this.value.trim();
+    const numRounds = parseInt(roundsValue);
+    const roundsContainer = document.getElementById("roundsContainer");
+    const roundsInputs = document.getElementById("roundsInputs");
+    
+    // Validate input
+    if (!roundsValue || isNaN(numRounds)) {
+        roundsContainer.classList.remove("show");
+        roundsInputs.innerHTML = "";
+        return;
+    }
+    
+    if (numRounds > 0) {
+        roundsInputs.innerHTML = "";
+        
+        for (let i = 1; i <= numRounds; i++) {
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "round-input-group";
+            inputGroup.innerHTML = `
+                <label for="round${i}">Round ${i} Name <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="round${i}" 
+                    class="round-input" 
+                    placeholder="e.g., Technical Round, HR Round" 
+                    required
+                >
+            `;
+            roundsInputs.appendChild(inputGroup);
+        }
+        
+        roundsContainer.classList.add("show");
+    } else {
+        roundsContainer.classList.remove("show");
+        roundsInputs.innerHTML = "";
+    }
+});
+
+document.getElementById("addJobForm").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Adding...';
+
+    try {
+        const roundsInput = document.getElementById("rounds").value.trim();
+        const numRounds = parseInt(roundsInput);
+        
+        // Validate rounds input
+        if (!roundsInput || isNaN(numRounds) || numRounds <= 0) {
+            showModal('Please enter a valid number for interview rounds', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            return;
+        }
+        
+        // Collect round names
+        let roundNames = [];
+        for (let i = 1; i <= numRounds; i++) {
+            const roundInput = document.getElementById(`round${i}`);
+            if (!roundInput || !roundInput.value.trim()) {
+                showModal(`Please enter name for Round ${i}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                return;
+            }
+            roundNames.push(roundInput.value.trim());
+        }
+
+        const formData = {
+            company: document.getElementById("company").value.trim(),
+            role: document.getElementById("role").value.trim(),
+            salary: document.getElementById("salary").value.trim(),
+            rounds: numRounds,
+            roundNames: roundNames.length > 0 ? roundNames.join(",") : null,
+            description: document.getElementById("description").value.trim(),
+            postedDate: document.getElementById("postedDate").value
+        };
+
+        // Validate required fields
+        if (!formData.company || !formData.role || !formData.salary || !formData.rounds || !formData.description || !formData.postedDate) {
+            showModal('Please fill all required fields', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            return;
+        }
+
+        const res = await fetch(JOB_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        });
+
+        const responseText = await res.text();
+        const modal = document.getElementById('responseModal');
+
+        if (!res.ok) {
+            let errorMessage = 'Failed to add job';
+            
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.message || errorData.error || errorData.msg || 'Failed to add job';
+            } catch {
+                if (responseText.includes('<') && responseText.includes('>')) {
+                    let match = responseText.match(/<h[1-2][^>]*>([^<]+)<\/h[1-2]>/i) ||
+                                responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
+                    errorMessage = match ? match[1] : 'Failed to add job. Server error occurred.';
+                } else {
+                    errorMessage = responseText.trim() || 'Failed to add job';
+                }
+            }
+            
+            modal.dataset.success = 'false';
+            showModal(errorMessage, 'error');
+        } else {
+            try {
+                const successData = JSON.parse(responseText);
+                const successMessage = successData.message || successData.msg || '✓ Job added successfully!';
+                modal.dataset.success = 'true';
+                showModal(successMessage, 'success');
+                
+                // Clear form
+                document.getElementById("addJobForm").reset();
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = "jobs.html";
+                }, 2000);
+            } catch {
+                modal.dataset.success = 'true';
+                showModal('✓ Job added successfully!', 'success');
+                document.getElementById("addJobForm").reset();
+                setTimeout(() => {
+                    window.location.href = "jobs.html";
+                }, 2000);
+            }
+        }
+    } catch (err) {
+        const modal = document.getElementById('responseModal');
+        modal.dataset.success = 'false';
+        showModal('Network error: ' + err.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+};
+</script>
+
+<script>
+// PERSISTENT SIDEBAR STATE MANAGEMENT
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isCurrentlyHidden = sidebar.classList.contains('hidden');
+    sidebar.classList.toggle('hidden');
+    hamburger.classList.toggle('active');
+    localStorage.setItem('sidebarState', JSON.stringify({ hidden: !isCurrentlyHidden }));
+}
+
+function restoreSidebarState() {
+    const state = localStorage.getItem('sidebarState');
+    if (state) {
+        const { hidden } = JSON.parse(state);
+        if (hidden && window.innerWidth > 768) {
+            document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('hamburger').classList.add('active');
+        }
+    }
+}
+
+function setActive(element) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    element.classList.add('active');
+    const href = element.getAttribute('href');
+    if (href) localStorage.setItem('activePage', href);
+}
+
+function restoreActiveLink() {
+    const activePage = localStorage.getItem('activePage');
+    if (activePage) {
+        const link = document.querySelector(`.sidebar a[href="${activePage}"]`);
+        if (link) link.classList.add('active');
+    }
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function() {
+        setActive(this);
+        if (window.innerWidth <= 768) setTimeout(() => toggleSidebar(), 100);
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('hidden')) toggleSidebar();
+    }
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    restoreSidebarState();
+    restoreActiveLink();
+});
+</script>
+
+</div>
+</div>
+
+</body>
+</html>

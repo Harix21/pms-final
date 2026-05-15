@@ -1,0 +1,838 @@
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+         .header{
+            background: #ffffff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            height: 87px;
+            position:sticky;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            left: -250px;
+        }
+
+        .sidebar h2 {
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 10px;
+            background-color: #34495e;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            display: block;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            padding-left: 20px;
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 4px solid white;
+            padding-left: 20px;
+        }
+
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: #667eea;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 250px);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #f4f6f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                left: -100%;
+                max-width: none;
+            }
+
+            .sidebar.hidden {
+                left: -100%;
+            }
+
+            .sidebar:not(.hidden) {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-top: 50px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .container form {
+                flex-direction: column;
+            }
+
+            .container input,
+            .container select {
+                width: 100% !important;
+            }
+
+            .container table {
+                font-size: 12px;
+            }
+
+            .container th,
+            .container td {
+                padding: 8px 5px;
+            }
+        }
+
+        .container form {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .container input {
+            padding: 8px;
+            margin: 5px;
+            width: 180px;
+        }
+
+        .container select {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+            cursor: pointer;
+        }
+
+        .container button {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .container table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+        }
+
+        .container th, .container td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .container th {
+            background: #6588a9;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .container .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .container .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .container .modal-buttons button {
+            margin-left: 10px;
+        }
+
+        .container .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .container .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .container .pagination button, .container .pagination span {
+            padding: 8px 12px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .container .pagination button:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        .container .pagination .active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .container .pagination .disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .container .record-info {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+       
+       
+    </style>
+
+<!-- SIDEBAR -->
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<nav class="sidebar" id="sidebar">
+   
+    <h2> Portal</h2>
+    
+    <ul>
+        <li><a href="home.html" onclick="setActive(this)">Home</a></li>
+        <li><a href="addStudent.html" class="active">Add Student</a></li>
+        <li><a href="search.html" onclick="setActive(this)">Search Student</a></li>
+        <li><a href="schedule.html" onclick="setActive(this)">Schedule</a></li>
+        <li><a href="training-schedule.html" onclick="setActive(this)">Training Schedule</a></li>
+        <li><a href="../jobs/browse-jobs.html" onclick="setActive(this)">Jobs</a></li>
+        <li><a href="../trainer/trainers.html" onclick="setActive(this)">Trainers</a></li>
+        <li style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 15px; padding-top: 15px;">
+            <a href="jobs/home.htm" onclick="setActive(this)">Job Portal</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+    <div class="header">
+       
+    </div>
+<div class="container">
+
+<h1>Student Management System</h1>
+
+<!-- FORM -->
+<form id="studentForm">
+    <input type="text" id="vhno" placeholder="VHNO" required>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="text" id="phno" placeholder="Phone">
+    
+    <select id="year">
+        <option value="">Year</option>
+        <option>1st</option>
+        <option>2nd</option>
+        <option>3rd</option>
+        <option>4th</option>
+    </select>
+    
+    <select id="batchId">
+        <option value="">Batch</option>
+        <option>Super 76</option>
+        <option>Strivers</option>
+        <option>Aspirants</option>
+    </select>
+    
+    <input type="number" id="attendance" placeholder="Attendance">
+    
+    <select id="placementStatus">
+        <option value="">Placement Status</option>
+        <option>Placed</option>
+        <option>Not Placed</option>
+    </select>
+    
+    <input type="date" id="dob">
+    
+    <select id="gender">
+        <option value="">Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    
+    <input type="password" id="password" placeholder="Password">
+
+    <button type="submit">Save Student</button>
+</form>
+
+<!-- TABLE -->
+<div class="record-info">
+    <span id="recordCount">Loading...</span>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>VHNO</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Year</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable"></tbody>
+</table>
+
+<!-- PAGINATION CONTROLS -->
+<div class="pagination" id="paginationControls"></div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Edit Student</div>
+        <form id="editForm">
+            <input type="hidden" id="editVhno">
+            <input type="text" id="editName" placeholder="Name" required>
+            <input type="email" id="editEmail" placeholder="Email">
+            <input type="text" id="editPhno" placeholder="Phone">
+            
+            <select id="editYear">
+                <option value="">Year</option>
+                <option>1st</option>
+                <option>2nd</option>
+                <option>3rd</option>
+                <option>4th</option>
+            </select>
+            
+            <select id="editBatchId">
+                <option value="">Batch</option>
+                <option>Super 76</option>
+                <option>Strivers</option>
+                <option>Aspirants</option>
+            </select>
+            
+            <input type="number" id="editAttendance" placeholder="Attendance">
+            
+            <select id="editPlacementStatus">
+                <option value="">Placement Status</option>
+                <option>Placed</option>
+                <option>Not Placed</option>
+            </select>
+            
+            <input type="date" id="editDob">
+            
+            <select id="editGender">
+                <option value="">Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+            </select>
+            
+            <input type="password" id="editPassword" placeholder="Password">
+
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-save">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+const API = "http://localhost:8080/api/students";
+const RECORDS_PER_PAGE = 10;
+let allStudents = [];
+let currentPage = 1;
+
+// LOAD ALL STUDENTS
+function loadStudents() {
+    fetch(API)
+        .then(res => res.json())
+        .then(data => {
+            allStudents = data;
+            currentPage = 1;
+            displayPage(1);
+            updatePagination();
+        });
+}
+
+// DISPLAY CURRENT PAGE
+function displayPage(pageNum) {
+    const startIdx = (pageNum - 1) * RECORDS_PER_PAGE;
+    const endIdx = startIdx + RECORDS_PER_PAGE;
+    const pageData = allStudents.slice(startIdx, endIdx);
+
+    const table = document.getElementById("studentTable");
+    table.innerHTML = "";
+
+    pageData.forEach(s => {
+        table.innerHTML += `
+            <tr>
+                <td>${s.vhno}</td>
+                <td>${s.name}</td>
+                <td>${s.email}</td>
+                <td>${s.phno}</td>
+                <td>${s.year}</td>
+                <td>
+                    <button onclick="editStudent('${s.vhno}')">Edit</button>
+                    <button onclick="deleteStudent('${s.vhno}')">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    // Update record count
+    const totalRecords = allStudents.length;
+    const displayedFrom = startIdx + 1;
+    const displayedTo = Math.min(endIdx, totalRecords);
+    document.getElementById("recordCount").textContent = 
+        `Showing ${displayedFrom}-${displayedTo} of ${totalRecords} records`;
+}
+
+// UPDATE PAGINATION CONTROLS
+function updatePagination() {
+    const totalPages = Math.ceil(allStudents.length / RECORDS_PER_PAGE);
+    const paginationDiv = document.getElementById("paginationControls");
+    paginationDiv.innerHTML = "";
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationDiv.innerHTML += `<button onclick="goToPage(${currentPage - 1})">← Previous</button>`;
+    } else {
+        paginationDiv.innerHTML += `<button disabled class="disabled">← Previous</button>`;
+    }
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            paginationDiv.innerHTML += `<span class="active">${i}</span>`;
+        } else {
+            paginationDiv.innerHTML += `<button onclick="goToPage(${i})">${i}</button>`;
+        }
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationDiv.innerHTML += `<button onclick="goToPage(${currentPage + 1})">Next →</button>`;
+    } else {
+        paginationDiv.innerHTML += `<button disabled class="disabled">Next →</button>`;
+    }
+}
+
+// GO TO PAGE
+function goToPage(pageNum) {
+    currentPage = pageNum;
+    displayPage(pageNum);
+    updatePagination();
+    window.scrollTo(0, 0); // Scroll to top
+}
+
+// SAVE STUDENT
+document.getElementById("studentForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const newVhno = document.getElementById("vhno").value.trim();
+    const newEmail = document.getElementById("email").value.trim();
+    const newPhno = document.getElementById("phno").value.trim();
+    const newName = document.getElementById("name").value.trim();
+
+    // Validation - Check if required fields are filled
+    if (!newName) {
+        alert("❌ Name is required!");
+        return;
+    }
+
+    // Check for duplicates
+    const duplicate = allStudents.find(s => 
+        (newEmail && s.email === newEmail && s.vhno !== newVhno) || 
+        (newPhno && s.phno === newPhno && s.vhno !== newVhno) || 
+        (newVhno && s.vhno === newVhno)
+    );
+
+    if (duplicate) {
+        let duplicateFields = [];
+        if (newVhno && duplicate.vhno === newVhno) duplicateFields.push(`Vehicle: ${newVhno}`);
+        if (newEmail && duplicate.email === newEmail) duplicateFields.push(`Email: ${newEmail}`);
+        if (newPhno && duplicate.phno === newPhno) duplicateFields.push(`Phone: ${newPhno}`);
+        
+        alert("❌ Duplicate Student Found!\n\n" + duplicateFields.join("\n") + "\n\nAlready exists in the database!");
+        return;
+    }
+
+    // No duplicates found, proceed with adding
+    const student = {
+        vhno: newVhno,
+        name: newName,
+        email: newEmail,
+        phno: newPhno,
+        year: document.getElementById("year").value,
+        batchId: document.getElementById("batchId").value,
+        attendance: document.getElementById("attendance").value,
+        placementStatus: document.getElementById("placementStatus").value,
+        dob: document.getElementById("dob").value,
+        gender: document.getElementById("gender").value,
+        password: document.getElementById("password").value
+    };
+
+    fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(student)
+    })
+    .then(() => {
+        alert("✅ Student Saved Successfully!");
+        document.getElementById("studentForm").reset();
+        loadStudents();
+    });
+});
+
+// DELETE
+function deleteStudent(vhno) {
+    fetch(`${API}/${vhno}`, { method: "DELETE" })
+    .then(() => {
+        alert("Deleted!");
+        loadStudents();
+    });
+}
+
+// EDIT - Open Modal
+let currentEditingStudent = null;
+function editStudent(vhno) {
+    fetch(`${API}/${vhno}`)
+    .then(res => res.json())
+    .then(s => {
+        currentEditingStudent = s;
+        document.getElementById("editVhno").value = s.vhno;
+        document.getElementById("editName").value = s.name;
+        document.getElementById("editEmail").value = s.email || "";
+        document.getElementById("editPhno").value = s.phno || "";
+        document.getElementById("editYear").value = s.year || "";
+        document.getElementById("editBatchId").value = s.batchId || "";
+        document.getElementById("editAttendance").value = s.attendance || "";
+        document.getElementById("editPlacementStatus").value = s.placementStatus || "";
+        document.getElementById("editDob").value = s.dob || "";
+        document.getElementById("editGender").value = s.gender || "";
+        document.getElementById("editPassword").value = s.password || "";
+        
+        document.getElementById("editModal").style.display = "block";
+    });
+}
+
+// Close Edit Modal
+function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+    currentEditingStudent = null;
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById("editModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+        currentEditingStudent = null;
+    }
+}
+
+// UPDATE STUDENT
+document.getElementById("editForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const vhno = document.getElementById("editVhno").value;
+    const newEmail = document.getElementById("editEmail").value.trim();
+    const newPhno = document.getElementById("editPhno").value.trim();
+    const newName = document.getElementById("editName").value.trim();
+
+    // Validation
+    if (!newName) {
+        alert("❌ Name is required!");
+        return;
+    }
+
+    // Only check for duplicates if email/phone have changed
+    const emailChanged = newEmail !== currentEditingStudent.email;
+    const phnoChanged = newPhno !== currentEditingStudent.phno;
+
+    if (emailChanged || phnoChanged) {
+        const duplicate = allStudents.find(s => s.vhno !== vhno && (
+            (emailChanged && newEmail && s.email === newEmail) || 
+            (phnoChanged && newPhno && s.phno === newPhno)
+        ));
+
+        if (duplicate) {
+            let duplicateFields = [];
+            if (emailChanged && newEmail && duplicate.email === newEmail) duplicateFields.push(`Email: ${newEmail}`);
+            if (phnoChanged && newPhno && duplicate.phno === newPhno) duplicateFields.push(`Phone: ${newPhno}`);
+            alert("❌ Duplicate Found!\n\n" + duplicateFields.join("\n") + "\n\nAlready exists!");
+            return;
+        }
+    }
+
+    const updatedStudent = {
+        vhno: vhno,
+        name: newName,
+        email: newEmail,
+        phno: newPhno,
+        year: document.getElementById("editYear").value,
+        batchId: document.getElementById("editBatchId").value,
+        attendance: document.getElementById("editAttendance").value,
+        placementStatus: document.getElementById("editPlacementStatus").value,
+        dob: document.getElementById("editDob").value,
+        gender: document.getElementById("editGender").value,
+        password: document.getElementById("editPassword").value
+    };
+
+    fetch(`${API}/${vhno}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedStudent)
+    })
+    .then(() => {
+        alert("✅ Student Updated Successfully!");
+        closeEditModal();
+        loadStudents();
+    });
+});
+
+// INITIAL LOAD
+loadStudents();
+
+// PERSISTENT SIDEBAR STATE MANAGEMENT
+const SidebarState = {
+    STORAGE_KEY: 'sidebarState',
+    ACTIVE_KEY: 'activePage',
+    
+    saveSidebarState(isHidden) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ hidden: isHidden }));
+    },
+    
+    getSidebarState() {
+        const state = localStorage.getItem(this.STORAGE_KEY);
+        return state ? JSON.parse(state).hidden : false;
+    },
+    
+    saveActivePage(href) {
+        localStorage.setItem(this.ACTIVE_KEY, href);
+    },
+    
+    getActivePage() {
+        return localStorage.getItem(this.ACTIVE_KEY) || '';
+    },
+    
+    clearState() {
+        localStorage.removeItem(this.STORAGE_KEY);
+        localStorage.removeItem(this.ACTIVE_KEY);
+    }
+};
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isCurrentlyHidden = sidebar.classList.contains('hidden');
+    
+    sidebar.classList.toggle('hidden');
+    hamburger.classList.toggle('active');
+    
+    SidebarState.saveSidebarState(!isCurrentlyHidden);
+}
+
+function restoreSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    const isSidebarHidden = SidebarState.getSidebarState();
+    
+    if (isSidebarHidden && window.innerWidth > 768) {
+        sidebar.classList.add('hidden');
+        hamburger.classList.add('active');
+    }
+}
+
+function setActive(element) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    element.classList.add('active');
+    
+    const href = element.getAttribute('href');
+    if (href) {
+        SidebarState.saveActivePage(href);
+    }
+}
+
+function restoreActiveLink() {
+    const activePage = SidebarState.getActivePage();
+    if (activePage) {
+        const link = document.querySelector(`.sidebar a[href="${activePage}"]`);
+        if (link) {
+            link.classList.add('active');
+        }
+    }
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', function() {
+        setActive(this);
+        if (window.innerWidth <= 768) {
+            setTimeout(() => toggleSidebar(), 100);
+        }
+    });
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.getElementById('hamburger');
+    if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        if (window.innerWidth <= 768 && !sidebar.classList.contains('hidden')) {
+            toggleSidebar();
+        }
+    }
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    restoreSidebarState();
+    restoreActiveLink();
+}, { once: true });
+
+</script>
+
+</div>
+</div>
+
+</body>
+</html>
